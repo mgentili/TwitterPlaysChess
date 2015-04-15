@@ -1,0 +1,25 @@
+<!doctype html>
+<title>JavaScript Chess</title>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',
+filename='chessboard-0.3.0.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',
+filename='chessboard-0.3.0.min.css') }}">
+
+<script src="{{ url_for('static', filename='jquery-1.11.2.min.js')
+}}"></script>
+
+<script type="text/javascript">
+    var SCRIPT_ROOT = '/';
+</script>
+<script src="{{ url_for('static', filename='chessboard-0.3.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='chess.min.js') }}"></script>
+
+<div class="body">
+    {% block body %}{% endblock %}
+</div>
+
+<div class="footer">
+    TwitterPlaysChess &mdash; A Flask Application
+</div>
+
