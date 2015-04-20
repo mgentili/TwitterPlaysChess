@@ -1,5 +1,5 @@
 <!doctype html>
-<title>JavaScript Chess</title>
+<title>Twitter Plays Chess</title>
 
 <link rel="stylesheet" type="text/css" href="{{ url_for('static',
 filename='chessboard-0.3.0.css') }}">
@@ -10,7 +10,8 @@ filename='chessboard-0.3.0.min.css') }}">
 }}"></script>
 
 <script type="text/javascript">
-    var SCRIPT_ROOT = '/';
+    console.log("{{ url_for('index') }}")
+    var SCRIPT_ROOT = "{{url_for('index')}}";
 </script>
 <script src="{{ url_for('static', filename='chessboard-0.3.0.min.js') }}"></script>
 <script src="{{ url_for('static', filename='chess.min.js') }}"></script>
