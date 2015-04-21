@@ -1,7 +1,10 @@
 import chess, chess.uci
 import time
 import sqlite3
+from tpc import db
 import tpc
+
+from models import Games, Positions
 
 ENGINE_URL = 'static/stockfish'
 MOVETIME = 1000 # time in msec for engine to think
@@ -9,25 +12,25 @@ PAUSE = 1 # time in sec between each AI move
 
 class ChessGame():
     def __init__(self):
-        currstate = tpc.with_context(lambda: tpc.query_state())
+        self.engine = chess.uci.popen_engine(ENGINE_URL)
+        self.engine.uci()     
+        
+        currstate = tpc.query_state()
         print "Initial state is", currstate
         self.game = currstate['game']
         self.pos = currstate['pos']
         if self.game == None:
             self.new_game()
-        print "In init", self.pos 
         self.board = chess.Board(self.pos)
         
-        self.engine = chess.uci.popen_engine(ENGINE_URL)
-        self.engine.uci()     
         self.engine.position(self.board)
 
     def new_game(self):
-        create_game_query = """insert into games (starttime) values
-            (?)"""
-        tpc.with_context(lambda:
-            tpc.insert_db(create_game_query,args=(int(time.time()),)))
-        self.game = tpc.with_context(lambda: tpc.query_state())['game']
+        game = Games( int(time.time()) ) 
+        db.session.add(game)
+        db.session.commit()
+        
+        self.game = tpc.query_state()['game']
         self.board = chess.Board()
         self.engine.position(self.board)
         self.pos = self.board.fen()
@@ -35,9 +38,9 @@ class ChessGame():
         self.update_pos_db(self.game, self.pos)
 
     def update_pos_db(self, game, pos):
-        create_move_query = """insert into moves (game, pos) values (?,?)"""
-        tpc.with_context(lambda: tpc.insert_db(create_move_query,
-            args=(game,pos,)))
+        newpos = Positions( game, pos )
+        db.session.add(newpos)
+        db.session.commit()
          
     def make_move(self, move):
         self.board.push(move[0])

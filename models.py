@@ -1,4 +1,4 @@
-from app import db
+from tpc import db
 #from sqlalchemy.dialects.postgresql import JSON
 
 class Games(db.Model):

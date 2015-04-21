@@ -1,5 +1,6 @@
 import os
 
+print os.environ['DATABASE_URL']
 class Config(object):
     DEBUG = False
     TESTING = False
