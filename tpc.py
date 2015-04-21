@@ -4,9 +4,14 @@ import time
 import sqlite3
 from contextlib import closing
 from werkzeug.contrib.cache import SimpleCache
+import os
+from flask.ext.sqlalchemy import SQLAlchemy
 
+print os.environ['APP_SETTINGS']
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_object(os.environ['APP_SETTINGS'])
+db = SQLAlchemy(app)
+
 app.cache = SimpleCache()
 
 def connect_db():
