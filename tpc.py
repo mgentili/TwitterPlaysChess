@@ -52,5 +52,4 @@ def get_position():
     return jsonify(position=rv)  
 
 if __name__ == "__main__":
-    #app.run(host='0.0.0.0')
-    app.run(threaded=True,debug=True)
+    app.run(threaded=True)
