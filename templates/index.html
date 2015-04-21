@@ -1,5 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
+<div style="width: 100%; overflow: hidden;">
+    <div id="board" style="width: 400px; float: left;"> Left </div>
+    <div style="margin-left: 620px;"> 
+    <a class="twitter-timeline" href="https://twitter.com/plays_chess"
+    data-widget-id="590241102906658817">Tweets by @plays_chess</a>
+<script>!function(d,s,id){var
+js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </div>
+</div>
+
 <div id="board" style="width: 400px"></div>
 
 <script src="{{ url_for('static', filename='chess_ai.js') }}"></script>
