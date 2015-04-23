@@ -5,21 +5,11 @@ from tpc import db
 import tpc
 import listener
 
-from models import Games, Positions
+from models import Games, Positions, TwitterMoves
 
 ENGINE_URL = 'static/stockfish'
 MOVETIME = 1000 # time in msec for engine to think
 PAUSE = 1 # time in sec between each AI move
-
-consumerKey = "xJYD61CtdkrPBEfSv37cSAUXv"
-consumerSecret = "3RHmmCwfe0Jqpl5GNlBmMyfim5GXu2QzPklPYUuVl1DXaafT0i"
-accessKey = "956669833-AHtkEW0MDLbqjtkwQ3tVnkbXDRdd0iTAUHXMPA0j"
-accessSecret = "OHit4o8twNUEXAGI8UyXuHkgyf0ohQ6OFZuCCH3H7Ae6c"
-keyword = '#TwitterPlaysChess'
-
-auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
-auth.set_access_token(accessKey, accessSecret)
-api = tweepy.API(auth)
 
 class ChessGame():
     def __init__(self):
@@ -31,10 +21,7 @@ class ChessGame():
         if self.game == None:
             self.new_game()
         self.board = chess.Board(self.pos)
-
-        self.streamer = tweepy.streaming.Stream(auth, listener.MoveListener())    
-        self.stream.filter(track=[keyword])
-
+        self.last = -1
         self.engine.position(self.board)
 
     def new_game(self):
@@ -65,13 +52,28 @@ class ChessGame():
     b.is_insufficient_material() or b.is_fivefold_repitition() or
     b.is_seventyfive_moves())
 
+    def get_twitter_moves(self):
+        last_considered_move = db.session.query(models.TwitterMoves.id).order_by('id DESC').first()[0]
+        moves = db.session.query(models.TwitterMoves.move, func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id > self.last and models.TwitterMoves.id <= last_considered_move).group_by(models.TwitterMoves.move).order_by('total DESC')
+        self.last = last_considered_move
+        print moves
+        return moves
+
     def ai_game(self):
         while not self.game_end_condition():
-            move = self.engine.go(movetime=MOVETIME)
+            if chess.Board.turn is chess.Black:
+                move = self.engine.go(movetime=MOVETIME)
+            else:
+                time.sleep(30)
+                moves = self.get_twitter_moves()
+                i = 0
+                while not chess.MOve.from_uci(moves[i]['move']) in self.board.legal_moves:
+                    i += 1
+                #TODO: catch no valid move
+                move = moves[i]['move']
             print move
             self.make_move(move)
             self.update_pos_db(self.game, self.pos)
-            time.sleep(PAUSE)
 
     def ai_loop(self):
         while True:
