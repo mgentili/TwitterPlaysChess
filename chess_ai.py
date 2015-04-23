@@ -3,8 +3,7 @@ import time
 import sqlite3
 from tpc import db
 import tpc
-import listener
-
+from sqlalchemy import desc, func
 from models import Games, Positions, TwitterMoves
 
 ENGINE_URL = 'static/stockfish'
@@ -42,7 +41,7 @@ class ChessGame():
         db.session.commit()
          
     def make_move(self, move):
-        self.board.push(move[0])
+        self.board.push(move)
         self.engine.position(self.board)
         self.pos = self.board.fen()
 
@@ -53,24 +52,31 @@ class ChessGame():
     b.is_seventyfive_moves())
 
     def get_twitter_moves(self):
-        last_considered_move = db.session.query(models.TwitterMoves.id).order_by('id DESC').first()[0]
-        moves = db.session.query(models.TwitterMoves.move, func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id > self.last and models.TwitterMoves.id <= last_considered_move).group_by(models.TwitterMoves.move).order_by('total DESC')
+        last_considered_move = db.session.query(TwitterMoves.id).order_by(desc(TwitterMoves.id)).first()[0]
+        moves = db.session.query(TwitterMoves.move,
+                func.count(TwitterMoves.id).label('total')).filter(TwitterMoves.id
+                        > self.last).filter(TwitterMoves.id <=
+                                last_considered_move).group_by(TwitterMoves.move).order_by(desc('total')).all()
+        #moves = db.engine.execute(q)
         self.last = last_considered_move
         print moves
         return moves
 
     def ai_game(self):
         while not self.game_end_condition():
-            if chess.Board.turn is chess.Black:
-                move = self.engine.go(movetime=MOVETIME)
+            if self.board.turn is chess.BLACK:
+                move = self.engine.go(movetime=MOVETIME)[0]
             else:
-                time.sleep(30)
+                print "about to sleep"
+                time.sleep(3)
+                print "woke uip!"
                 moves = self.get_twitter_moves()
+                print moves
                 i = 0
-                while not chess.MOve.from_uci(moves[i]['move']) in self.board.legal_moves:
+                while not chess.Move.from_uci(moves[i][0]) in self.board.legal_moves:
                     i += 1
                 #TODO: catch no valid move
-                move = moves[i]['move']
+                move = chess.Move.from_uci(moves[i][0])
             print move
             self.make_move(move)
             self.update_pos_db(self.game, self.pos)

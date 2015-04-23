@@ -46,7 +46,7 @@ def new_game():
 def get_position():
     rv = app.cache.get('position')
     if rv is None:
-        rv = query_state()['pos']
+        _ , rv = query_state()
         app.cache.set('position', rv, timeout= 1)
     return jsonify(position=rv)  
 

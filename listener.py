@@ -24,17 +24,21 @@ class MoveListener(tweepy.StreamListener):
 
     def on_data(self, data):
         json_data = json.loads(data)
-        move = json_data['text']
+        move = json_data['text'].split(" ")[0]
         user = json_data['user']['screen_name']
         time = json_data['created_at'][11:18]
 
-        game, pos = query_state()
+        game, pos = tpc.query_state()
         temp = chess.Board(pos)
 
-        if chess.Move.from_uci(move) in temp.Moves:
+        print move
+        if chess.Move.from_uci(move) in temp.legal_moves:
             valid = TwitterMoves( game, move, user, time)
-            db.session.add(valid)
-            db.session.commit()
+            tpc.db.session.add(valid)
+            tpc.db.session.commit()
+            print valid, "is valid!", move
+        else:
+            print "Not valid :-("
 #        file.write(json_data['text'] + "," + json_data['user']['screen_name'])
 #        file.write('\n')
 #        print "Tweet grabbed"
@@ -51,3 +55,4 @@ class MoveListener(tweepy.StreamListener):
 print "Now listening for ", keyword
 sapi = tweepy.streaming.Stream(auth, MoveListener())
 sapi.filter(track=[keyword])
+print "hi"
