@@ -21,12 +21,12 @@ def query_state():
     g = db.session.query(models.Games.id).order_by(desc(models.Games.id)).first()
     if g == None:
         print "No game state"
-        return {'game' : None, 'pos' : None}
+        return (None, None)
     pos = db.session.query(models.Positions.pos).order_by(desc(models.Positions.id)).filter_by(game=g[0]).first()
     if pos == None:
         print "No position state"
-        return {'game' : g[0], 'pos' : None}
-    return { 'game' : g[0], 'pos' : pos[0] }
+        return (g[0], None)
+    return (g[0], pos[0])
 
 @app.route("/")
 def index():

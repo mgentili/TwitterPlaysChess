@@ -26,10 +26,8 @@ class ChessGame():
         self.engine = chess.uci.popen_engine(ENGINE_URL)
         self.engine.uci()     
         
-        currstate = tpc.query_state()
-        print "Initial state is", currstate
-        self.game = currstate['game']
-        self.pos = currstate['pos']
+        self.game, self.pos = tpc.query_state()
+        print "Initial state is", self.game, self.pos
         if self.game == None:
             self.new_game()
         self.board = chess.Board(self.pos)
@@ -44,7 +42,7 @@ class ChessGame():
         db.session.add(game)
         db.session.commit()
         
-        self.game = tpc.query_state()['game']
+        self.game, _ = tpc.query_state()
         self.board = chess.Board()
         self.engine.position(self.board)
         self.pos = self.board.fen()
