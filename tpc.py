@@ -10,7 +10,6 @@ from sqlalchemy import desc
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
-db.init_app(app)
 app.cache = SimpleCache()
 
 import models

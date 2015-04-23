@@ -3,12 +3,23 @@ import time
 import sqlite3
 from tpc import db
 import tpc
+import listener
 
 from models import Games, Positions
 
 ENGINE_URL = 'static/stockfish'
 MOVETIME = 1000 # time in msec for engine to think
 PAUSE = 1 # time in sec between each AI move
+
+consumerKey = "xJYD61CtdkrPBEfSv37cSAUXv"
+consumerSecret = "3RHmmCwfe0Jqpl5GNlBmMyfim5GXu2QzPklPYUuVl1DXaafT0i"
+accessKey = "956669833-AHtkEW0MDLbqjtkwQ3tVnkbXDRdd0iTAUHXMPA0j"
+accessSecret = "OHit4o8twNUEXAGI8UyXuHkgyf0ohQ6OFZuCCH3H7Ae6c"
+keyword = '#TwitterPlaysChess'
+
+auth = tweepy.OAuthHandler(consumerKey, consumerSecret)
+auth.set_access_token(accessKey, accessSecret)
+api = tweepy.API(auth)
 
 class ChessGame():
     def __init__(self):
@@ -22,7 +33,10 @@ class ChessGame():
         if self.game == None:
             self.new_game()
         self.board = chess.Board(self.pos)
-        
+
+        self.streamer = tweepy.streaming.Stream(auth, listener.MoveListener())    
+        self.stream.filter(track=[keyword])
+
         self.engine.position(self.board)
 
     def new_game(self):
