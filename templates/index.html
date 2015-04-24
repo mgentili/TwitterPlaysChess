@@ -5,10 +5,10 @@
 
 <div style="width: 100%; overflow: hidden;">
     <!--<div id="board" style="width: 400px; float: left;"> Left </div>--!>
-    <div id="board" style="width: 33%; float: left; align: center"> Left </div>
+    <div id="board" style="width: 30%; float: left; align: center"> Left </div>
 
     <!--<div style="margin-left: 620px;">--!> 
-    <div style="width: 33%; float: left; align: center">
+    <div style="width: 30%; float: left; align: center">
         <!-- Twitter Feed !-->
         <a class="twitter-timeline" href="https://twitter.com/hashtag/TwitterPlaysChess"
             data-widget-id="590242953668485122">#TwitterPlaysChess Tweets</a>
@@ -18,11 +18,28 @@
     </div>
 
     <!-- Votes Display !-->
-    <div id="votes" style="width: 33%; float: left; align: center">Votes
-    {% for vote in Votes %}
-        <strong>Move: </strong> {{ vote.move }} <br>
-        <strong>Count: </strong> {{ vote.count }} <br>
-    {% endfor %}
+    <table id="votes" style="width: 30%; float: left; align: center">
+    <tr>
+        <td> Move </td>
+        <td> Votes </td>
+    </tr>
+
+    <script>
+        var head = "<td>"
+        var tail = "</td>"
+        $.getJSON('/get_counts', function(counts) {
+            var counter = 0;
+            $("<tr>").appendTo("#votes");
+            $.each( counts, function(move, count) {
+                $(head.concat(move).concat(tail))appendTo("#votes");    
+                if (counter >= 10) {
+                    return false;
+                }
+                counter += 1;
+            });
+            $("/tr>").appendTo("#votes");
+        });
+    </script>
     </div>
 </div>
 
