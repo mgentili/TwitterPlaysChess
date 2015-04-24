@@ -5,7 +5,7 @@ from contextlib import closing
 from werkzeug.contrib.cache import SimpleCache
 import os
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -14,19 +14,63 @@ app.cache = SimpleCache()
 
 import models
 
+#DATABASE FUNCTIONS
 def init_db():
     db.create_all()
 
-def query_state():
+def create_new_game():
+    print "Creating new game!"
+    game = models.Games( int(time.time()) )
+    db.session.add(game)
+    db.session.commit()
+    g = get_last_game()
+    start_pos = chess.Board().fen()
+    update_pos_db( g, start_pos, 'None')
+    return g, start_pos
+
+def get_last_game():
     g = db.session.query(models.Games.id).order_by(desc(models.Games.id)).first()
+    if g == None:
+        return None
+    return g[0]
+
+def get_last_move(g):
+    pos = db.session.query(models.Positions.pos).order_by(desc(models.Positions.id)).filter_by(game=g).first()
+    if pos == None:
+        return None
+    return pos[0]
+
+def query_state():
+    g = get_last_game()
     if g == None:
         print "No game state"
         return (None, None)
-    pos = db.session.query(models.Positions.pos).order_by(desc(models.Positions.id)).filter_by(game=g[0]).first()
+    pos = get_last_move(g)
     if pos == None:
         print "No position state"
-        return (g[0], None)
-    return (g[0], pos[0])
+        return (g, None)
+    return (g, pos)
+
+def get_twitter_moves(last):
+    new_last = db.session.query(models.TwitterMoves.id).order_by(desc(models.TwitterMoves.id)).first()
+    if new_last == None:
+        return None, None
+    else:
+        new_last = new_last[0]
+    moves = db.session.query(models.TwitterMoves.move,
+            func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id
+                    > last).filter(models.TwitterMoves.id < new_last).group_by(models.TwitterMoves.move).order_by(desc('total')).all()
+    return moves, new_last
+
+def update_pos_db( game, pos, last_move):
+    newpos = models.Positions( game, pos, last_move )
+    db.session.add(newpos)
+    db.session.commit()
+
+def add_move_db(game, move, user, time):
+    valid = models.TwitterMoves( game, move, user, time)
+    db.session.add(valid)
+    db.session.commit()
 
 @app.route("/")
 def index():
@@ -40,7 +84,7 @@ def send_move():
 
 @app.route("/new_game")
 def new_game():
-    print "Hi"
+    create_new_game() 
 
 @app.route("/get_position")
 def get_position():
@@ -49,6 +93,12 @@ def get_position():
         _ , rv = query_state()
         app.cache.set('position', rv, timeout= 1)
     return jsonify(position=rv)  
+
+@app.route("/get_counts")
+def get_counts():
+    rv = app.cache.get('counts')
+    if rv is None:
+        _ , rv = query
 
 if __name__ == "__main__":
     app.run(threaded=True)

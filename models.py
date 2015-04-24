@@ -20,13 +20,16 @@ class Positions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game = db.Column(db.Integer)
     pos = db.Column(db.String())
+    last_move = db.Column(db.String())
 
-    def __init__(self, game, pos):
+    def __init__(self, game, pos, last_move):
         self.game = game
         self.pos = pos
+        self.last_move = last_move
 
     def __repr__(self):
-        return '<id {}, game {}, pos {}>'.format(self.id, self.game, self.pos)
+        return '<id {}, game {}, pos {}, last_move {}>'.format(self.id,
+                self.game, self.pos, self.last_move)
 
 class TwitterMoves(db.Model):
     __tablename__ = 'twittermoves'
