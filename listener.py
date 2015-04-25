@@ -3,7 +3,6 @@ import pprint
 import json
 import sys
 import tpc
-from models import TwitterMoves
 import chess
 
 file = open('test.txt', 'a')
@@ -33,16 +32,10 @@ class MoveListener(tweepy.StreamListener):
 
         print move
         if chess.Move.from_uci(move) in temp.legal_moves:
-            valid = TwitterMoves( game, move, user, time)
-            tpc.db.session.add(valid)
-            tpc.db.session.commit()
+            tpc.add_move_db( game, move, user, time)
             print valid, "is valid!", move
         else:
             print "Not valid :-("
-#        file.write(json_data['text'] + "," + json_data['user']['screen_name'])
-#        file.write('\n')
-#        print "Tweet grabbed"
-#        pprint.pprint(json_data)
 
     def on_error(self, status_code):
         print >> sys.stderr, 'Encountered error with status code:', status_code
