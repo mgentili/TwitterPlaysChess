@@ -1,2 +1,3 @@
 web: gunicorn tpc:app --log-file=-
-worker: python chess_ai.py
+ai: python chess_ai.py
+listener: python listener.py
