@@ -7,8 +7,8 @@ from sqlalchemy import desc, func
 from models import Games, Positions, TwitterMoves
 
 ENGINE_URL = 'static/stockfish'
-MOVETIME = 1000 # time in msec for engine to think
-PAUSE = 1 # time in sec between each AI move
+THINKTIME = 1000 # time in msec for engine to think
+TWITTERTIME = 3 # time in sec between each twitter aggregated move
 
 class ChessGame():
     def __init__(self):
@@ -44,6 +44,7 @@ class ChessGame():
         self.board.push(move)
         self.engine.position(self.board)
         self.pos = self.board.fen()
+        self.update_pos_db(self.game, self.pos)
 
     def game_end_condition(self):
         b = self.board
@@ -57,29 +58,39 @@ class ChessGame():
                 func.count(TwitterMoves.id).label('total')).filter(TwitterMoves.id
                         > self.last).filter(TwitterMoves.id <=
                                 last_considered_move).group_by(TwitterMoves.move).order_by(desc('total')).all()
-        #moves = db.engine.execute(q)
         self.last = last_considered_move
-        print moves
         return moves
+
+    def is_twitter_move(self):
+        return (self.board.turn is chess.WHITE)
+    
+    def get_first_valid_move(self, moves):
+        if moves == None:
+            return None
+        else:
+            i = 0
+            while (not chess.Move.from_uci(moves[i][0]) in
+                    self.board.legal_moves) and i < len(moves) - 1:
+                i += 1
+            if i == len(moves):
+                print "No valid move inputted yet!"
+                return None
+            else:
+                return chess.Move.from_uci(moves[i][0])
 
     def ai_game(self):
         while not self.game_end_condition():
-            if self.board.turn is chess.BLACK:
-                move = self.engine.go(movetime=MOVETIME)[0]
+            move = None
+            if not self.is_twitter_move():
+                move = self.engine.go(movetime=THINKTIME)[0]
+                self.make_move(move)
             else:
-                print "about to sleep"
-                time.sleep(3)
-                print "woke uip!"
+                time.sleep(TWITTERTIME)
                 moves = self.get_twitter_moves()
-                print moves
-                i = 0
-                while not chess.Move.from_uci(moves[i][0]) in self.board.legal_moves:
-                    i += 1
-                #TODO: catch no valid move
-                move = chess.Move.from_uci(moves[i][0])
-            print move
-            self.make_move(move)
-            self.update_pos_db(self.game, self.pos)
+                print "Moves are", moves
+                move = self.get_first_valid_move(moves)
+            if not move == None:
+                self.make_move(move)
 
     def ai_loop(self):
         while True:
