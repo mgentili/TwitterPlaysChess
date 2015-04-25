@@ -57,6 +57,7 @@ def get_twitter_moves(last):
         return None, None
     else:
         new_last = new_last[0]
+    print "New last", new_last 
     moves = db.session.query(models.TwitterMoves.move,
             func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id
                     > last).filter(models.TwitterMoves.id < new_last).group_by(models.TwitterMoves.move).order_by(desc('total')).all()

@@ -67,9 +67,10 @@ class ChessGame():
             else:
                 print "Twitter move start"
                 time.sleep(TWITTERTIME)
+                print "last considered move id was", self.last
                 moves, last_move = tpc.get_twitter_moves(self.last)
                 self.last = last_move
-                print "Twitter moves are", moves
+                print "Twitter moves are", moves, "with new last", last_move
                 move = self.get_first_valid_move(moves)
                 print "Twitter chosen move is", move
                 if move == None: # get ai move

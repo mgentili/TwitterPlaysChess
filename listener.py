@@ -33,7 +33,7 @@ class MoveListener(tweepy.StreamListener):
         print move
         if chess.Move.from_uci(move) in temp.legal_moves:
             tpc.add_move_db( game, move, user, time)
-            print valid, "is valid!", move
+            print "is valid!", move
         else:
             print "Not valid :-("
 
