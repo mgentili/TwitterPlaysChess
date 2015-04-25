@@ -24,7 +24,7 @@ def create_new_game():
     db.session.add(game)
     db.session.commit()
     g = get_last_game()
-    start_pos = chess.Board().fen()
+    start_pos = chess.STARTING_FEN
     update_pos_db( g, start_pos, 'None')
     return g, start_pos
 
@@ -53,6 +53,7 @@ def query_state():
 
 def get_twitter_moves(last):
     new_last = db.session.query(models.TwitterMoves.id).order_by(desc(models.TwitterMoves.id)).first()
+    print "Last was", last, "new last is", new_last
     if new_last == None:
         return None, None
     else:
@@ -60,7 +61,7 @@ def get_twitter_moves(last):
     print "New last", new_last 
     moves = db.session.query(models.TwitterMoves.move,
             func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id
-                    > last).filter(models.TwitterMoves.id < new_last).group_by(models.TwitterMoves.move).order_by(desc('total')).all()
+                    > last).filter(models.TwitterMoves.id <= new_last).group_by(models.TwitterMoves.move).order_by(desc('total')).all()
     return moves, new_last
 
 def update_pos_db( game, pos, last_move):

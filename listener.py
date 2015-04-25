@@ -31,7 +31,9 @@ class MoveListener(tweepy.StreamListener):
         temp = chess.Board(pos)
 
         print move
-        if chess.Move.from_uci(move) in temp.legal_moves:
+        
+        #if chess.Move.from_uci(move) in temp.legal_moves:
+        if len(move) == 4:
             tpc.add_move_db( game, move, user, time)
             print "is valid!", move
         else:

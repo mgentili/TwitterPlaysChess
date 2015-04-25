@@ -41,20 +41,28 @@ class ChessGame():
 
     def is_twitter_move(self):
         return (self.board.turn is chess.WHITE)
-    
+
+    def pos_ok(self, pos):
+        return ((pos[0] >= 'a') and (pos[0] <= 'h') and (pos[1] >= '1') and (pos[1]
+        <= '8'))
+
+    def move_ok(self, move):
+        return self.pos_ok(move[0:2]) and self.pos_ok(move[2:4])
+
     def get_first_valid_move(self, moves):
         if moves == None or moves == []:
             return None
         else:
             i = 0
-            while i < len(moves) and (chess.Move.from_uci(moves[i][0]) not in
+            for i in xrange(len(moves)):
+                if not self.move_ok(moves[i][0]):
+                    continue
+                if (chess.Move.from_uci(moves[i][0]) not in
                     self.board.legal_moves):
-                i += 1
-            if i == len(moves):
-                print "No valid move inputted yet!"
-                return None
-            else:
+                    continue
                 return chess.Move.from_uci(moves[i][0])
+            print "No valid move inputted yet!"
+            return None
 
     def ai_game(self):
         while not self.game_end_condition():
