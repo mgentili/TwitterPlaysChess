@@ -1,25 +1,48 @@
 {% extends "layout.html" %}
 {% block body %}
-<div style="width: 100%; overflow: hidden;">
-    <div id="board" style="width: 400px; float: left;"> Left </div>
-    <div style="margin-left: 620px;"> 
-<a class="twitter-timeline" href="https://twitter.com/hashtag/TwitterPlaysChess"
-    data-widget-id="590242953668485122">#TwitterPlaysChess Tweets</a>
-<script>!function(d,s,id){var
-js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-        
-<!--<a class="twitter-timeline" href="https://twitter.com/plays_chess"
-    data-widget-id="590241102906658817">Tweets by @plays_chess</a>
-<script>!function(d,s,id){var
-js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
---> 
- </div>
-</div>
 
-<div id="board" style="width: 400px"></div>
+<div style="width: 100%; overflow: hidden;"><h1 style="text-align: center">Twitter Plays Chess</h1></div>
+
+<div style="width: 100%; overflow: hidden;">
+    <!--<div id="board" style="width: 400px; float: left;"> Left </div>--!>
+    <div id="board" style="width: 30%; float: left; align: center"> Left </div>
+
+    <!--<div style="margin-left: 620px;">--!> 
+    <div style="width: 30%; float: left; align: center">
+        <!-- Twitter Feed !-->
+        <a class="twitter-timeline" href="https://twitter.com/hashtag/TwitterPlaysChess"
+            data-widget-id="590242953668485122">#TwitterPlaysChess Tweets</a>
+        <script>!function(d,s,id){var
+            js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        
+    </div>
+
+    <!-- Votes Display !-->
+    <table id="votes" style="width: 30%; float: left; align: center">
+    <tr>
+        <td> Move </td>
+        <td> Votes </td>
+    </tr>
+
+    <script>
+        var head = "<td>"
+        var tail = "</td>"
+        $.getJSON('/get_counts', function(counts) {
+            var counter = 0;
+            $("<tr>").appendTo("#votes");
+            $.each( counts, function(move, count) {
+                $(head.concat(move).concat(tail))appendTo("#votes");    
+                if (counter >= 10) {
+                    return false;
+                }
+                counter += 1;
+            });
+            $("/tr>").appendTo("#votes");
+        });
+    </script>
+    </div>
+</div>
 
 <script src="{{ url_for('static', filename='chess_ai.js') }}"></script>
 
 {% endblock %}
-
-
