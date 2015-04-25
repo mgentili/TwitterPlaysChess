@@ -5,7 +5,7 @@ import tpc
 
 ENGINE_URL = 'static/stockfish'
 THINKTIME = 2000 # time in msec for engine to think
-TWITTERTIME = 3 # time in sec between each twitter aggregated move
+TWITTERTIME = 15 # time in sec between each twitter aggregated move
 
 class ChessGame():
     def __init__(self):
