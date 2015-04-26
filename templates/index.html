@@ -43,6 +43,16 @@
     </div>
 </div>
 
+<table id="example" class="display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>Move</th>
+            <th>Count</th>
+        </tr>
+    </thead>
+</table>
+
+<script src="{{ url_for('static', filename='board.js') }}"></script>
 <script src="{{ url_for('static', filename='chess_ai.js') }}"></script>
 
 {% endblock %}

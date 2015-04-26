@@ -5,6 +5,8 @@
 filename='chessboard-0.3.0.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static',
 filename='chessboard-0.3.0.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',
+filename='jquery.dataTables.css') }}">
 
 <script src="{{ url_for('static', filename='jquery-1.11.2.min.js')
 }}"></script>
@@ -15,6 +17,9 @@ filename='chessboard-0.3.0.min.css') }}">
 </script>
 <script src="{{ url_for('static', filename='chessboard-0.3.0.min.js') }}"></script>
 <script src="{{ url_for('static', filename='chess.min.js') }}"></script>
+<script src="{{ url_for('static', filename='jquery.dataTables.min.js')
+}}"></script>
+
 
 <div class="body">
     {% block body %}{% endblock %}

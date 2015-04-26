@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, request, jsonify, url_for
+from flask import Flask, g, render_template, request, jsonify, url_for, Response
 import chess, chess.uci
 import time
 from contextlib import closing
@@ -6,6 +6,7 @@ from werkzeug.contrib.cache import SimpleCache
 import os
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, func
+import json
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -98,9 +99,21 @@ def get_position():
 
 @app.route("/get_counts")
 def get_counts():
-    rv = app.cache.get('counts')
-    if rv is None:
-        _ , rv = query
+    moves = app.cache.get('counts')
+    last = app.cache.get('last')
+    last_move = -1
+    if last is None:
+        app.cache.set('last', -1, 1000)
+
+    if moves is None:
+        moves, new_last = get_twitter_moves(app.cache.get('last'))
+        app.cache.set('counts', moves, timeout= 1)
+        app.cache.set('last', new_last, timeout=1000)
+
+    print "moves are", moves
+    print "jsonified", jsonify(moves)
+    #return Response(json.dumps(moves), mimetype = 'application/json')
+    return jsonify(aaData=moves)
 
 if __name__ == "__main__":
     app.run(threaded=True)
