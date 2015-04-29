@@ -16,8 +16,18 @@
             js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
         
     </div>
+    <div style="width: 30%; float: left; align: center">
+    <table id="example" class="display" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Move</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+    </table>
+    </div>
 
-    <!-- Votes Display !-->
+    <!-- Votes Display 
     <table id="votes" style="width: 30%; float: left; align: center">
     <tr>
         <td> Move </td>
@@ -39,19 +49,8 @@
             });
             $("/tr>").appendTo("#votes");
         });
-    </script>
-    </div>
+    </script> -->
 </div>
-
-<table id="example" class="display" cellspacing="0" width="100%">
-    <thead>
-        <tr>
-            <th>Move</th>
-            <th>Count</th>
-        </tr>
-    </thead>
-</table>
-
 <script src="{{ url_for('static', filename='board.js') }}"></script>
 <script src="{{ url_for('static', filename='chess_ai.js') }}"></script>
 

@@ -1,4 +1,4 @@
-var INTERVAL = 5000;
+var INTERVAL = 20000;
 
 var table = $('#example').DataTable( {
     "ajax" : {"url": SCRIPT_ROOT + 'get_counts'}

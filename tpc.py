@@ -108,7 +108,7 @@ def get_counts():
     if moves is None:
         moves, new_last = get_twitter_moves(app.cache.get('last'))
         app.cache.set('counts', moves, timeout= 1)
-        app.cache.set('last', new_last, timeout=1000)
+        #app.cache.set('last', new_last, timeout=1000)
 
     print "moves are", moves
     print "jsonified", jsonify(moves)
