@@ -3,6 +3,10 @@
 
 <div style="width: 100%; overflow: hidden;"><h1 style="text-align: center">Twitter Plays Chess</h1></div>
 
+<div style="width:100%; overflow: hidden;">
+    <p>Twitter Plays Chess is a social experiment leveraging collective human intelligence to play chess. You can submit a vote for a move by making a tweet with the hashtag #TwitterPlaysChess. Moves must specify the square of the piece to move and the square to move to. For example, if the game has just started, tweeting 'a2a3 #TwitterPlaysChess' will vote for the pawn in square a2 to move to a3. Moves not of this format will not be accepted.</p>
+</div>
+
 <div style="width: 100%; overflow: hidden;">
     <!--<div id="board" style="width: 400px; float: left;"> Left </div>--!>
     <div id="board" style="width: 30%; float: left; align: center"> Left </div>
@@ -27,29 +31,6 @@
     </table>
     </div>
 
-    <!-- Votes Display 
-    <table id="votes" style="width: 30%; float: left; align: center">
-    <tr>
-        <td> Move </td>
-        <td> Votes </td>
-    </tr>
-
-    <script>
-        var head = "<td>"
-        var tail = "</td>"
-        $.getJSON('/get_counts', function(counts) {
-            var counter = 0;
-            $("<tr>").appendTo("#votes");
-            $.each( counts, function(move, count) {
-                $(head.concat(move).concat(tail))appendTo("#votes");    
-                if (counter >= 10) {
-                    return false;
-                }
-                counter += 1;
-            });
-            $("/tr>").appendTo("#votes");
-        });
-    </script> -->
 </div>
 <script src="{{ url_for('static', filename='board.js') }}"></script>
 <script src="{{ url_for('static', filename='chess_ai.js') }}"></script>

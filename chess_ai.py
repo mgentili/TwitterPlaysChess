@@ -2,10 +2,20 @@ import chess, chess.uci
 import time
 import sqlite3
 import tpc
+import tweepy
 
 ENGINE_URL = 'static/stockfish'
 THINKTIME = 2000 # time in msec for engine to think
 TWITTERTIME = 30 # time in sec between each twitter aggregated move
+
+CONSUMER_KEY = 'uNJaFxwx3fRq9s3ZEt7i5Awi8'
+CONSUMER_SECRET = 'dMQyrlJwSL8WyErsfoCtlF4t7WMx8CNHGCQ994OFLm5d8NKf97'
+ACCESS_KEY = '3179800966-OUKU6Er6HUTCV07nlGLvXqaX1QIhSpBVu2euH40'
+ACCESS_SECRET = 'VIhumbT6shsDwvxgKWAwQSvthdZkKqsVfYIG2EYzlTqbs'
+
+auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+api = tweepy.API(auth)
 
 class ChessGame():
     def __init__(self):
@@ -32,6 +42,8 @@ class ChessGame():
         self.engine.position(self.board)
         self.pos = self.board.fen()
         tpc.update_pos_db(self.game, self.pos, str(move))
+        newStatus = 'It has been decided! Made move ' + str(move) + ' #TwitterPlaysChess'
+        api.update_status(status=newStatus)
 
     def game_end_condition(self):
         b = self.board
