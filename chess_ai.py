@@ -2,10 +2,15 @@ import chess, chess.uci
 import time
 import sqlite3
 import tpc
+import helpers
+import listener
 
 ENGINE_URL = 'static/stockfish'
 THINKTIME = 2000 # time in msec for engine to think
 TWITTERTIME = 30 # time in sec between each twitter aggregated move
+
+TWITTER_COLOR = chess.WHITE
+AI_COLOR = chess.BLACK
 
 class ChessGame():
     def __init__(self):
@@ -22,12 +27,20 @@ class ChessGame():
         print "Finished init"
 
     def new_game(self):
+        listener.api.update_status("Creating new game")
         self.game, self.pos = tpc.create_new_game()
         self.board = chess.Board(self.pos)
         self.engine.position(self.board)
 
-    def make_move(self, move):
+    def make_move(self, move, color):
         print "Making move", move
+        base_message = "New move: {}".format(move)
+        if color == TWITTER_COLOR:
+            message = "{}{}".format("Twitter -- ", base_message)
+        else:
+            message = "{}{}".format("AI -- ", base_message)
+        
+        listener.api.update_status(message)
         self.board.push(move)
         self.engine.position(self.board)
         self.pos = self.board.fen()
@@ -40,22 +53,17 @@ class ChessGame():
     b.is_seventyfive_moves())
 
     def is_twitter_move(self):
-        return (self.board.turn is chess.WHITE)
-
-    def pos_ok(self, pos):
-        return ((pos[0] >= 'a') and (pos[0] <= 'h') and (pos[1] >= '1') and (pos[1]
-        <= '8'))
-
-    def move_ok(self, move):
-        return self.pos_ok(move[0:2]) and self.pos_ok(move[2:4])
-
+        return (self.board.turn is TWITTER_COLOR)
+    
     def get_first_valid_move(self, moves):
         if moves == None or moves == []:
             return None
         else:
             i = 0
             for i in xrange(len(moves)):
-                if not self.move_ok(moves[i][0]):
+                if moves[i][0] == "newgame":
+                    return moves[i][0]
+                if not helpers.move_ok(moves[i][0]):
                     continue
                 if (chess.Move.from_uci(moves[i][0]) not in
                     self.board.legal_moves):
@@ -71,7 +79,7 @@ class ChessGame():
                 print "Ai move start"
                 move = self.engine.go(movetime=THINKTIME)[0]
                 print "Ai move", move
-                self.make_move(move)
+                self.make_move(move, AI_COLOR)
             else:
                 print "Twitter move start"
                 time.sleep(TWITTERTIME)
@@ -81,10 +89,12 @@ class ChessGame():
                 print "Twitter moves are", moves, "with new last", last_move
                 move = self.get_first_valid_move(moves)
                 print "Twitter chosen move is", move
+                if move == "newgame":
+                    return
                 if move == None: # get ai move
                     move = self.engine.go(movetime=THINKTIME)[0]
                     print "No move, so generating random one", move
-                self.make_move(move)
+                self.make_move(move, TWITTER_COLOR)
 
     def ai_loop(self):
         while True:

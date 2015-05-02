@@ -4,7 +4,7 @@ import json
 import sys
 import tpc
 import chess
-
+import helpers
 file = open('test.txt', 'a')
 
 consumerKey = "xJYD61CtdkrPBEfSv37cSAUXv"
@@ -32,10 +32,12 @@ class MoveListener(tweepy.StreamListener):
 
         print move
         
-        #if chess.Move.from_uci(move) in temp.legal_moves:
-        if len(move) == 4:
-            tpc.add_move_db( game, move, user, time)
-            print "is valid!", move
+        if helpers.move_ok(move[:4]):
+            tpc.add_move_db( game, move[:4], user, time)
+            print "New move", move[:4]
+        elif move[:7] == "newgame":
+            tpc.add_move_db( game, move[:7], user, time)
+            print "New game move!", move[:7]
         else:
             print "Not valid :-("
 
@@ -47,7 +49,8 @@ class MoveListener(tweepy.StreamListener):
         print >> sys.stderr, 'Timeout...'
         return True
 
-print "Now listening for ", keyword
-sapi = tweepy.streaming.Stream(auth, MoveListener())
-sapi.filter(track=[keyword])
-print "hi"
+if __name__ == "__main__":
+    print "Now listening for ", keyword
+    sapi = tweepy.streaming.Stream(auth, MoveListener())
+    sapi.filter(track=[keyword])
+    print "hi"
