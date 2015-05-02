@@ -61,7 +61,8 @@ def get_twitter_moves():
     last = -1
     for i in xrange(3):
         print last_moves[i]
-        if last_moves[i].move[:7] == 'Twitter':
+        l = last_moves[i].move[:7]
+        if l == 'Creatin' or l == 'Twitter':
             last = last_moves[i].id
             break
 
