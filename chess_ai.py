@@ -47,9 +47,16 @@ class ChessGame():
 
     def game_end_condition(self):
         b = self.board
-        return (b.is_checkmate() or b.is_stalemate() or
+        endGame = (b.is_checkmate() or b.is_stalemate() or
     b.is_insufficient_material() or b.is_fivefold_repitition() or
     b.is_seventyfive_moves())
+        if endGame:
+            if (self.board.turn is chess.WHITE):
+                endStatus = 'Computers win!'
+            else:
+                endStatus = 'Humans win!'
+            api.update_status(status=endStatus)
+        return endGame
 
     def is_twitter_move(self):
         return (self.board.turn is chess.WHITE)
