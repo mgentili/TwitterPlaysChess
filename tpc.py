@@ -13,7 +13,6 @@ db = SQLAlchemy(app)
 app.cache = SimpleCache()
 
 import models
-
 #DATABASE FUNCTIONS
 def init_db():
     db.create_all()
@@ -36,7 +35,9 @@ def get_last_game():
     return g[0]
 
 def get_last_move(g):
-    pos = db.session.query(models.Positions.pos).order_by(desc(models.Positions.id)).filter_by(game=g).first()
+    pos = (db.session.query(models.Positions.pos)
+            .order_by(desc(models.Positions.id))
+            .filter_by(game=g).first())
     if pos == None:
         return None
     return pos[0]
@@ -52,18 +53,25 @@ def query_state():
         return (g, None)
     return (g, pos)
 
-def get_twitter_moves(last):
-    new_last = db.session.query(models.TwitterMoves.id).order_by(desc(models.TwitterMoves.id)).first()
-    print "Last was", last, "new last is", new_last
-    if new_last == None:
-        return None, None
-    else:
-        new_last = new_last[0]
-    print "New last", new_last 
-    moves = db.session.query(models.TwitterMoves.move,
-            func.count(models.TwitterMoves.id).label('total')).filter(models.TwitterMoves.id
-                    > last).filter(models.TwitterMoves.id <= new_last).group_by(models.TwitterMoves.move).order_by(desc('total')).all()
-    return moves, new_last
+def get_twitter_moves():
+    last_moves = (db.session.query(models.TwitterMoves.id, models.TwitterMoves.move)
+            .filter(models.TwitterMoves.user=='plays_chess')
+            .order_by(desc(models.TwitterMoves.id))
+            .limit(3))
+    last = -1
+    for i in xrange(3):
+        print last_moves[i]
+        if last_moves[i].move[:7] == 'Twitter':
+            last = last_moves[i].id
+            break
+
+    print last
+    moves = (db.session.query(models.TwitterMoves.move, func.count(models.TwitterMoves.id).label('total'))
+            .filter(models.TwitterMoves.id > last)
+            .filter(models.TwitterMoves.user != 'plays_chess')
+            .group_by(models.TwitterMoves.move)
+            .order_by(desc('total')).all())
+    return moves
 
 def update_pos_db( game, pos, last_move):
     newpos = models.Positions( game, pos, last_move )
@@ -100,19 +108,12 @@ def get_position():
 @app.route("/get_counts")
 def get_counts():
     moves = app.cache.get('counts')
-    last = app.cache.get('last')
-    last_move = -1
-    if last is None:
-        app.cache.set('last', -1, 1000)
-
     if moves is None:
-        moves, new_last = get_twitter_moves(app.cache.get('last'))
+        moves = get_twitter_moves()
         app.cache.set('counts', moves, timeout= 1)
-        #app.cache.set('last', new_last, timeout=1000)
 
     print "moves are", moves
     print "jsonified", jsonify(moves)
-    #return Response(json.dumps(moves), mimetype = 'application/json')
     return jsonify(aaData=moves)
 
 if __name__ == "__main__":

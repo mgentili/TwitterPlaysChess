@@ -32,10 +32,12 @@ class MoveListener(tweepy.StreamListener):
 
         print move
         
-        if helpers.move_ok(move[:4]):
+        if user == 'plays_chess': #always allow our tweets
+            tpc.add_move_db( game, move, user, time)
+        elif helpers.move_ok(move[:4]): #move is four characters long
             tpc.add_move_db( game, move[:4], user, time)
             print "New move", move[:4]
-        elif move[:7] == "newgame":
+        elif move[:7] == "newgame": #or move is to create a new game
             tpc.add_move_db( game, move[:7], user, time)
             print "New game move!", move[:7]
         else:

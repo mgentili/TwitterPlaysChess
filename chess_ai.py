@@ -30,31 +30,29 @@ class ChessGame():
         if self.game == None:
             self.new_game()
         self.board = chess.Board(self.pos)
-        self.last = -1
         self.engine.position(self.board)
         print "Finished init"
 
     def new_game(self):
-        api.update_status("Creating new game")
         self.game, self.pos = tpc.create_new_game()
         self.board = chess.Board(self.pos)
         self.engine.position(self.board)
-
+        api.update_status(status="""Creating new game {} #TwitterPlaysChess""".format(self.game))
+        
     def make_move(self, move, color):
         print "Making move", move
-        base_message = "New move: {}".format(move)
+        self.board.push(move)
+        self.engine.position(self.board)
+        self.pos = self.board.fen()
+        tpc.update_pos_db(self.game, self.pos, str(move))
+
+        base_message = """New move: {} in game {} #TwitterPlaysChess""".format(move, self.game)
         if color == TWITTER_COLOR:
             message = "{}{}".format("Twitter -- ", base_message)
         else:
             message = "{}{}".format("AI -- ", base_message)
         
-        api.update_status(message)
-        self.board.push(move)
-        self.engine.position(self.board)
-        self.pos = self.board.fen()
-        tpc.update_pos_db(self.game, self.pos, str(move))
-        newStatus = 'It has been decided! Made move ' + str(move) + ' #TwitterPlaysChess'
-        api.update_status(status=newStatus)
+        api.update_status(status=message)
 
     def game_end_condition(self):
         b = self.board
@@ -93,10 +91,8 @@ class ChessGame():
             else:
                 print "Twitter move start"
                 time.sleep(TWITTERTIME)
-                print "last considered move id was", self.last
-                moves, last_move = tpc.get_twitter_moves(self.last)
-                self.last = last_move
-                print "Twitter moves are", moves, "with new last", last_move
+                moves = tpc.get_twitter_moves()
+                print "Twitter moves are", moves
                 move = self.get_first_valid_move(moves)
                 print "Twitter chosen move is", move
                 if move == "newgame":
