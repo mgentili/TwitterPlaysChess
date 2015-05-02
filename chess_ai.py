@@ -7,7 +7,7 @@ import tweepy
 
 ENGINE_URL = 'static/stockfish'
 THINKTIME = 10000 # time in msec for engine to think
-TWITTERTIME = 30 # time in sec between each twitter aggregated move
+TWITTERTIME = 60 # time in sec between each twitter aggregated move
 
 TWITTER_COLOR = chess.WHITE
 AI_COLOR = chess.BLACK
