@@ -93,16 +93,12 @@ def send_move():
     b = request.args.get('b', 0, type=int)
     return jsonify(result = a + b)
 
-@app.route("/new_game")
-def new_game():
-    create_new_game() 
-
 @app.route("/get_position")
 def get_position():
     rv = app.cache.get('position')
     if rv is None:
         _ , rv = query_state()
-        app.cache.set('position', rv, timeout= 1)
+        app.cache.set('position', rv, timeout=15)
     return jsonify(position=rv)  
 
 @app.route("/get_counts")
@@ -110,7 +106,7 @@ def get_counts():
     moves = app.cache.get('counts')
     if moves is None:
         moves = get_twitter_moves()
-        app.cache.set('counts', moves, timeout= 1)
+        app.cache.set('counts', moves, timeout=5)
 
     print "moves are", moves
     print "jsonified", jsonify(moves)

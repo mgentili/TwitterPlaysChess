@@ -1,16 +1,14 @@
-var INTERVAL = 20000;
+var INTERVAL = 5000;
 
 var table = $('#example').DataTable( {
-    "ajax" : {"url": SCRIPT_ROOT + 'get_counts'}
+    "ajax" : {"url": SCRIPT_ROOT + 'get_counts'},
+    "order" : [[ 1, "desc" ]]
 }    );
 
-//table.on( 'xhr', function () {
-//    var json = table.ajax.json();
-//    console.log( json );
-//});
     
 setInterval( function () {
     table.ajax.reload();
+    console.log("Setting table");
     }, INTERVAL);
 
 
