@@ -99,7 +99,7 @@ def get_position():
     rv = app.cache.get('position')
     if rv is None:
         _ , rv = query_state()
-        app.cache.set('position', rv, timeout=10)
+        app.cache.set('position', rv, timeout=5)
     return jsonify(position=rv)  
 
 @app.route("/get_counts")

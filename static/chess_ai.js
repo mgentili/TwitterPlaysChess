@@ -15,7 +15,7 @@ function get_board_state() {
 var board_state = get_board_state();
 var board = new ChessBoard('board', board_state);
 
-var INTERVAL = 10000;
+var INTERVAL = 5000;
 
 setInterval( function () {
     console.log( "Setting position!");
