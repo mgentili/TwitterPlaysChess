@@ -37,7 +37,8 @@ class ChessGame():
         self.game, self.pos = tpc.create_new_game()
         self.board = chess.Board(self.pos)
         self.engine.position(self.board)
-        api.update_status(status="""Creating new game {} #TwitterPlaysChess""".format(self.game))
+        api.update_status(status=helpers.make_status("""Creating new game
+            {}""".format(self.game)))
         
     def make_move(self, move, color):
         print "Making move", move
@@ -46,14 +47,14 @@ class ChessGame():
         self.pos = self.board.fen()
         tpc.update_pos_db(self.game, self.pos, str(move))
 
-        base_message = """New move: {} in game {} #TwitterPlaysChess""".format(move, self.game)
+        base_message = helpers.make_status("""New move: {} in game {}""".format(move, self.game))
         if color == TWITTER_COLOR:
             message = "{}{}".format("Twitter -- ", base_message)
         else:
             message = "{}{}".format("AI -- ", base_message)
         
         api.update_status(status=message)
-
+    
     def game_end_condition(self):
         b = self.board
         endGame = (b.is_checkmate() or b.is_stalemate() or
@@ -64,7 +65,7 @@ class ChessGame():
                 endStatus = 'Computers win!'
             else:
                 endStatus = 'Humans win!'
-            api.update_status(status=endStatus)
+            api.update_status(status=helpers.make_status(endStatus))
         return endGame
 
     def is_twitter_move(self):
